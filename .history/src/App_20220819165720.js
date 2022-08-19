@@ -15,7 +15,7 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Learn React  ddd多大多大
+          Learn React
         </a>
       </header>
     </div>
