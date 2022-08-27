@@ -111,12 +111,23 @@ server.on("request", (req, res) => {
           if(!param.project){ 
             res.end("请选择nexp前端front项目");
           }
-          exec(
-            `echo yarn build-ui ${param.mode} ${param.project} ${param.uilet?getImodelIds(param.uilet):''}`,
-            (error, stdout, stderr) => {
-              console.log(error, stdout, stderr);
-            }
-          );
+          if(param.mode==='meta'){
+            exec(
+              `yarn build-model -e ws://${param.env??'192.168.21.24'} -s 32080 --service-path /${param.workName??'huzhijun'}/imodel/service ${param.project}`,
+              (error, stdout, stderr) => {
+                console.log(error, stdout, stderr);
+              }
+            );
+          }else if(param.mode==='ui'){
+            exec(
+              `yarn build-ui -e http://${param.env??'192.168.21.24'} -s 32080 --service-path /${param.workName??'huzhijun'}/imodel/http ${param.project} ${param.uilet?'--scripts '+getImodelIds(param.uilet):''}`,
+              (error, stdout, stderr) => {
+                console.log(error, stdout, stderr);
+              }
+            );
+
+          }
+       
         });
       } 
       break;

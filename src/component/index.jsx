@@ -6,15 +6,25 @@ import {
   MenuItem,
   FormControl,
   Select,
-  Button, 
+  Button,
   RadioGroup,
   FormControlLabel,
   Radio,
 } from "@mui/material";
+const workdEnvs = {
+  cd: { url: "192.168.21.24", name: "cd" },
+  sd: { url: "31.128.2.200", name: "sd" },
+};
+const workSpace = {
+  cd: ["donghuan", "huzhijun"],
+  sd: ["nexp-test", "nexp"],
+};
 export const Main = () => {
   const [data, setData] = useState();
   const [front, setFront] = useState([]);
   const [uilet, setUlet] = useState("");
+  const [env, setEnv] = useState();
+  const [workName, setWorkName] = useState("huzhijun");
   const [mode, setMode] = useState("ui");
   const [project, setProject] = useState("");
   useEffect(() => {
@@ -30,14 +40,50 @@ export const Main = () => {
 
   return (
     <Box p={2}>
-      <Box display="flex"  gap={2}>
+      <Box display="flex" gap={2}>
+        <FormControl fullWidth>
+          <InputLabel id="demo-simple-select-label">请选择环境</InputLabel>
+          <Select
+            value={env?.url}
+            defaultValue=""
+            onChange={(event) => {
+              setEnv(workdEnvs[event.target.value]);
+            }}
+          >
+            {Object.keys(workdEnvs).map((env, idx) => {
+              return (
+                <MenuItem key={idx} value={env}>
+                  {env}
+                </MenuItem>
+              );
+            })}
+          </Select>
+        </FormControl>
+        <FormControl fullWidth>
+          <InputLabel id="demo-simple-select-label">请选择工作空间</InputLabel>
+          <Select
+            value={workName}
+            defaultValue=""
+            onChange={(event) => {
+              setWorkName(event.target.value);
+            }}
+          >
+            {env &&
+              workSpace[env.name].map((item) => {
+                return (
+                  <MenuItem key={item} value={item}>
+                    {item}
+                  </MenuItem>
+                );
+              })}
+          </Select>
+        </FormControl>
+      </Box>
+      <Box display="flex" gap={2}>
         <FormControl fullWidth>
           <InputLabel id="demo-simple-select-label">请选择</InputLabel>
           <Select
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
             value={mode}
-            label="Age"
             defaultValue=""
             onChange={(event) => {
               setMode(event.target.value);
@@ -71,29 +117,16 @@ export const Main = () => {
             })}
           </Select>
         </FormControl>
-        <FormControl fullWidth>
-          <InputLabel id="demo-simple-select-label">请选择</InputLabel>
-          <Select
-            value={uilet}
-            label="Age"
-            defaultValue="1"
-            onChange={(event) => {
-              setUlet(event.target.value);
-            }}
-          >
-            {data?.[project]?.map((front) => {
-              return (
-                <MenuItem key={front} value={front}>
-                  {front}
-                </MenuItem>
-              );
-            })}
-          </Select>
-        </FormControl>
         <Button
           onClick={() => {
             axios
-              .post(`http://127.0.0.1/build`, { mode, project, uilet })
+              .post(`http://127.0.0.1/build`, {
+                env: env.url,
+                mode,
+                project,
+                uilet,
+                workName,
+              })
               .then((res) => {
                 console.log("res=>", res);
               });
@@ -102,7 +135,7 @@ export const Main = () => {
           编译
         </Button>
       </Box>
-      <Box>
+      <Box hidden={mode === "meta" ? true : false}>
         <FormControl>
           <RadioGroup
             aria-labelledby="demo-radio-buttons-group-label"
