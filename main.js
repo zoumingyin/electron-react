@@ -1,19 +1,52 @@
 // 引入electron并创建一个Browserwindow
 
 const exec = require("child_process").exec;
-const { app, BrowserWindow } = require("electron"); 
+const { app, BrowserWindow } = require("electron");
 const path = require("path");
 const url = require('url')
 var fs = require("fs-extra");
 const http = require("http");
 const server = http.createServer();
+var excuteCmd = function (cmd, cb) {
+  return new Promise((resolve, reject) => {
+    var workerProcess = exec(cmd);
+    allProcess.push(workerProcess)
+    var type = cmd + Date.now()
+    workerProcess.stdout.on('data', function (data) {
+      cb && cb(data)
+      wsInstances.forEach(ws => {
+        ws.send(JSON.stringify({
+          type,
+          data
+        }))
+      })
+    });
+
+    workerProcess.stderr.on('data', function (data) {
+      cb && cb(data)
+      console.log('##',JSON.stringify({
+        type,
+        data: 'process end' + code
+      }))
+    });
+
+    workerProcess.on('close', function (code) {
+      resolve(code)
+      console.log('##',JSON.stringify({
+        type,
+        data: 'process end' + code
+      }))
+      allProcess = allProcess.filter(item => item !== workerProcess)
+    });
+  })
+}
 // 保持window对象的全局引用,避免JavaScript对象被垃圾回收时,窗口被自动关闭.
 let mainWindow;
 function createWindow() {
   //创建浏览器窗口,宽高自定义具体大小你开心就好
   mainWindow = new BrowserWindow({ width: 800, height: 600 });
 
-  /* 
+  /*
    * 加载应用-----  electron-quick-start中默认的加载入口
     mainWindow.loadURL(url.format({
       pathname: path.join(__dirname, 'index.html'),
@@ -80,8 +113,8 @@ const getImodelIds = (uilet) => {
       id[value] = k;
       delete id[k];
     }
-    ids = { ...ids, ...id }; 
-  } 
+    ids = { ...ids, ...id };
+  }
   return ids[uilet];
 };
 server.on("request", (req, res) => {
@@ -108,28 +141,20 @@ server.on("request", (req, res) => {
         // 接收数据完成
         req.on("end", () => {
           const param = JSON.parse(str);
-          if(!param.project){ 
+          if(!param.project){
             res.end("请选择nexp前端front项目");
           }
           if(param.mode==='meta'){
-            exec(
-              `yarn build-model -e ws://${param.env??'192.168.21.24'} -s 32080 --service-path /${param.workName??'huzhijun'}/imodel/service ${param.project}`,
-              (error, stdout, stderr) => {
-                console.log(error, stdout, stderr);
-              }
-            );
+            const code =  excuteCmd(`yarn build-model -e ws://${param.env??'192.168.21.24'} -s 32080 --service-path /${param.workName??'huzhijun'}/imodel/service ${param.project}`)
+            console.log('ui:',code)
           }else if(param.mode==='ui'){
-            exec(
-              `yarn build-ui -e http://${param.env??'192.168.21.24'} -s 32080 --service-path /${param.workName??'huzhijun'}/imodel/http ${param.project} ${param.uilet?'--scripts '+getImodelIds(param.uilet):''}`,
-              (error, stdout, stderr) => {
-                console.log(error, stdout, stderr);
-              }
-            );
+            const code = await excuteCmd(`yarn build-ui -e http://${param.env??'192.168.21.24'} -s 32080 --service-path /${param.workName??'huzhijun'}/imodel/http ${param.project} ${param.uilet?'--scripts '+getImodelIds(param.uilet):''}`)
+            console.log('meta:',code)
 
           }
-       
+
         });
-      } 
+      }
       break;
 
     default:
