@@ -1,33 +1,29 @@
 // 引入electron并创建一个Browserwindow
 
 const exec = require("child_process").exec;
-const { app, BrowserWindow } = require("electron");
-const path = require("path");
-const url = require('url')
+const { app, BrowserWindow } = require("electron"); 
+const path = require("path"); 
 var fs = require("fs-extra");
 const http = require("http");
 const server = http.createServer();
+var WebSocketServer = require('ws').Server,
+wss = new WebSocketServer({ port: 8181 });
+var allProcess=[]
 var excuteCmd = function (cmd, cb) {
   return new Promise((resolve, reject) => {
     var workerProcess = exec(cmd);
     allProcess.push(workerProcess)
     var type = cmd + Date.now()
     workerProcess.stdout.on('data', function (data) {
-      cb && cb(data)
-      wsInstances.forEach(ws => {
-        ws.send(JSON.stringify({
-          type,
-          data
-        }))
-      })
+      cb && cb(type,data)  
     });
 
     workerProcess.stderr.on('data', function (data) {
-      cb && cb(data)
-      console.log('##',JSON.stringify({
-        type,
-        data: 'process end' + code
-      }))
+      cb && cb(type,data)
+      // console.log('##',JSON.stringify({
+      //   type,
+      //   data: 'process end' + data
+      // }))
     });
 
     workerProcess.on('close', function (code) {
@@ -55,12 +51,12 @@ function createWindow() {
     }))
   */
   // 加载应用----适用于 react 项目
-  // mainWindow.loadURL("http://localhost:3000");
-  mainWindow.loadURL(url.format({
-    pathname: path.join(__dirname, './build/index.html'),
-    protocol: 'file:',
-    slashes: true
-  }))
+  mainWindow.loadURL("http://localhost:3000");
+  // mainWindow.loadURL(url.format({
+  //   pathname: path.join(__dirname, './build/index.html'),
+  //   protocol: 'file:',
+  //   slashes: true
+  // }))
 
   // 打开开发者工具，默认不打开
   mainWindow.webContents.openDevTools();
@@ -89,13 +85,13 @@ app.on("activate", function () {
   }
 });
 const getProject =()=>{
-  var readDir = fs.readdirSync("../");
+  var readDir = fs.readdirSync("E:/git/nexp/webqianduan/nexp-workspace-dev-2.2");
   var fronts = readDir.filter(
     (name) => name.endsWith("-front") || name.endsWith("ui-lib")
   );
   const nexpFronts = fronts.reduce((result, item) => {
     const config = fs
-      .readFileSync(path.resolve("../", item, "./bundle.config.ts"))
+      .readFileSync(path.resolve("E:/git/nexp/webqianduan/nexp-workspace-dev-2.2/", item, "./bundle.config.ts"))
       .toString();
     result[item.slice(5, -6) || "ui-lib"] = config;
     return result;
@@ -103,10 +99,10 @@ const getProject =()=>{
  return   nexpFronts
 }
 const getImodelIds = (uilet) => {
-  var readDir = fs.readdirSync("../nexp.imodel-ids/ids");
+  var readDir = fs.readdirSync("E:/git/nexp/webqianduan/nexp-workspace-dev-2.2/nexp.imodel-ids/ids");
   let ids = {};
   for (const item of readDir) {
-    const config = fs.readJsonSync("../nexp.imodel-ids/ids/" + item);
+    const config = fs.readJsonSync("E:/git/nexp/webqianduan/nexp-workspace-dev-2.2/nexp.imodel-ids/ids/" + item);
     const id = config;
     for (let k in id) {
       let value = id[k];
@@ -119,50 +115,49 @@ const getImodelIds = (uilet) => {
 };
 server.on("request", (req, res) => {
   res.writeHead(200, { "Content-Type": "text/plain;charset=utf-8" });
-  switch (req.url) {
-    case "/getProject":
-      const nexpFronts =getProject()
-      const jsPackages = Object.keys(nexpFronts).reduce((result, repo) => {
-        result[repo] = nexpFronts[repo]
-          .match(/\[IDSC\.(.*)?]/g)
-          .map((item) => item.slice(6, -1));
-        return result;
-      }, {});
-      res.end(JSON.stringify(jsPackages));
-      break;
 
-    case "/build":
-      if (req.method.toUpperCase() === "POST") {
-        let str = "";
-        // 接收数据
-        req.on("data", (chunk) => {
-          str += chunk;
-        });
-        // 接收数据完成
-        req.on("end", () => {
-          const param = JSON.parse(str);
-          if(!param.project){
-            res.end("请选择nexp前端front项目");
-          }
-          if(param.mode==='meta'){
-            const code =  excuteCmd(`yarn build-model -e ws://${param.env??'192.168.21.24'} -s 32080 --service-path /${param.workName??'huzhijun'}/imodel/service ${param.project}`)
-            console.log('ui:',code)
-          }else if(param.mode==='ui'){
-            const code = await excuteCmd(`yarn build-ui -e http://${param.env??'192.168.21.24'} -s 32080 --service-path /${param.workName??'huzhijun'}/imodel/http ${param.project} ${param.uilet?'--scripts '+getImodelIds(param.uilet):''}`)
-            console.log('meta:',code)
-
-          }
-
-        });
-      }
-      break;
-
-    default:
-      res.end(JSON.stringify(["null"]));
-      break;
-  }
 });
 server.listen(80, () => {
   console.log("http server runing at http://127.0.0.1");
   // 你可以在这个脚本中续写或者使用require引入独立的js文件.
+}); 
+wss.on('connection', function (ws) {
+  console.log('client connected');
+  ws.on('message', function (message) {
+      console.log(message.toString()); 
+      const resData =JSON.parse(message.toString())
+      const {type,param} = resData 
+      switch (type) {
+        case "getProject":
+          const nexpFronts =getProject()
+          const jsPackages = Object.keys(nexpFronts).reduce((result, repo) => {
+            result[repo] = nexpFronts[repo]
+              .match(/\[IDSC\.(.*)?]/g)
+              .map((item) => item.slice(6, -1));
+            return result;
+          }, {});
+          ws.send(JSON.stringify({type,data:jsPackages}));
+          break;
+    
+        case "build":{ 
+          if(!param.project){
+            ws.send("请选择nexp前端front项目");
+          }
+          if(param.mode==='meta'){
+            const code =  excuteCmd(`cd E:/git/nexp/webqianduan/nexp-workspace-dev-2.2 && yarn build-model -e ws://${param.env??'192.168.21.24'} -s 32080 --service-path /${param.workName??'huzhijun'}/imodel/service ${param.project}`,(buildType,data)=>{
+              ws.send(JSON.stringify({type,data:{data,type:buildType}}))
+            })  
+          }else if(param.mode==='ui'){
+            const code =   excuteCmd(`cd E:/git/nexp/webqianduan/nexp-workspace-dev-2.2 &&  yarn build-ui -e http://${param.env??'192.168.21.24'} -s 32080 --service-path /${param.workName??'huzhijun'}/imodel/http ${param.project} ${param.uilet?'--scripts '+getImodelIds(param.uilet):''}`,(buildType,data)=>{
+              ws.send(JSON.stringify({type,data:{data,type:buildType}}))
+ 
+            }) 
+          }
+          break;
+        } 
+        default:
+          ws.send(JSON.stringify(resData));
+          break;
+      }
+  });
 });

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import * as axios from "axios";
 import {
   Box,
   InputLabel,
@@ -10,7 +9,9 @@ import {
   RadioGroup,
   FormControlLabel,
   Radio,
+  Typography,
 } from "@mui/material";
+import { useRef } from "react";
 const workdEnvs = {
   cd: { url: "192.168.21.24", name: "cd" },
   sd: { url: "31.128.2.200", name: "sd" },
@@ -27,13 +28,42 @@ export const Main = () => {
   const [workName, setWorkName] = useState("huzhijun");
   const [mode, setMode] = useState("ui");
   const [project, setProject] = useState("");
-  useEffect(() => {
-    axios.get("http://127.0.0.1/getProject").then((res) => {
-      setFront(Object.keys(res.data));
-      setData(res.data);
-    });
-  }, []);
+  const [message, setMessage] = useState({type:'',data:[]});
+  const wss = useRef(new WebSocket("ws://127.0.0.1:8181"));
+  useEffect(() => { 
+    const ws =wss.current
+    ws.onopen = () => {
+      ws.send(JSON.stringify({ type: "getProject" }));
+    };
+    ws.onmessage = (res) => {
+      const msg = JSON.parse(res.data);
+      switch (msg.type) {
+        case "getProject":
+          setFront(Object.keys(msg.data));
+          setData(msg.data);
+          break;
+        case "build":
+          setMessage({
+            type: msg.data.type,
+            data: [...message?.data, msg.data.data],
+          });
+          break;
 
+        default:
+          break;
+      }
+    };
+    ws.onerror = (res) => {
+      console.log(res);
+    };
+    ws.onclose = (res) => {
+      console.log(res);
+    };
+  }, [message]);
+  const ws = wss.current;
+  const sendMsg = (msg) => {
+    ws.send(JSON.stringify(msg));
+  };
   const handleChange = (event) => {
     setProject(event.target.value);
   };
@@ -119,17 +149,10 @@ export const Main = () => {
         </FormControl>
         <Button
           onClick={() => {
-            axios
-              .post(`http://127.0.0.1/build`, {
-                env: env.url,
-                mode,
-                project,
-                uilet,
-                workName,
-              })
-              .then((res) => {
-                console.log("res=>", res);
-              });
+            sendMsg({
+              type: "build",
+              param: { env: env.url, mode, project, uilet, workName },
+            });
           }}
         >
           编译
@@ -149,6 +172,7 @@ export const Main = () => {
             {data?.[project]?.map((front) => {
               return (
                 <FormControlLabel
+                  key={front}
                   value={front}
                   control={<Radio />}
                   label={front}
@@ -157,6 +181,14 @@ export const Main = () => {
             })}
           </RadioGroup>
         </FormControl>
+      </Box>
+      <Box hidden={message.type?false:true} p={1} bgcolor='#4d5b6c' color='white'>
+        <code>
+          {message?.type}
+          {message?.data.map((msg, index) => (
+            <Typography key={index}>{msg}</Typography>
+          ))}
+        </code>
       </Box>
     </Box>
   );
