@@ -148,7 +148,8 @@ wss.on('connection', function (ws) {
               ws.send(JSON.stringify({type,data:{data,type:buildType}}))
             })  
           }else if(param.mode==='ui'){
-            const code =   excuteCmd(`cd E:/git/nexp/webqianduan/nexp-workspace-dev-2.2 &&  yarn build-ui -e http://${param.env??'192.168.21.24'} -s 32080 --service-path /${param.workName??'huzhijun'}/imodel/http ${param.project} ${param.uilet?'--scripts '+getImodelIds(param.uilet):''}`,(buildType,data)=>{
+            const code =   excuteCmd(`cd E:/git/nexp/webqianduan/nexp-workspace-dev-2.2 &&  yarn build-ui -e http://${param.env??'192.168.21.24'} -s 32080 --service-path /${param.workName??'huzhijun'}/imodel/http ${param.project} ${param.uilet?'--scripts '+getImodelIds(param.uilet):''}
+              ${param.sendMode==='production'?'--env production':''}`,(buildType,data)=>{
               ws.send(JSON.stringify({type,data:{data,type:buildType}}))
  
             }) 

@@ -27,6 +27,7 @@ export const Main = () => {
   const [env, setEnv] = useState();
   const [workName, setWorkName] = useState("huzhijun");
   const [mode, setMode] = useState("ui");
+  const [sendMode, setSendMode] = useState("dev");
   const [project, setProject] = useState("");
   const [message, setMessage] = useState({type:'',data:[]});
   const wss = useRef(new WebSocket("ws://127.0.0.1:8181"));
@@ -147,11 +148,31 @@ export const Main = () => {
             })}
           </Select>
         </FormControl>
+        <FormControl fullWidth>
+          <InputLabel id="demo-simple-select-label">请选择模式</InputLabel>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            value={sendMode} 
+            defaultValue=""
+            onChange={(event) => {
+              setSendMode(event.target.value);
+            }}
+          >
+            {['dev','production'].map((front) => {
+              return (
+                <MenuItem key={front} value={front}>
+                  {front}
+                </MenuItem>
+              );
+            })}
+          </Select>
+        </FormControl>
         <Button
           onClick={() => {
             sendMsg({
               type: "build",
-              param: { env: env.url, mode, project, uilet, workName },
+              param: { env: env.url, mode, project, uilet, workName,sendMode },
             });
           }}
         >
