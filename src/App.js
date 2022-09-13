@@ -1,11 +1,13 @@
-import {Main} from './component';
-import './App.css';   
-function App() {
-  return (
-    <div className="App">
-       <Main/>
-    </div>
-  );
-}
+import './App.css'
 
-export default App;
+import React from 'react'
+
+import { Main } from './component'
+
+const App = () => (
+  <div className='App'>
+    <Main />
+  </div>
+)
+
+export default App

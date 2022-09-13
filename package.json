@@ -2,42 +2,19 @@
   "name": "electron-react",
   "version": "0.1.0",
   "private": true,
-  "main": "main.js",
   "homepage": ".",
-  "dependencies": {
-    "@emotion/react": "^11.10.0",
-    "@emotion/styled": "^11.10.0",
-    "@mui/icons-material": "^5.8.4",
-    "@mui/material": "^5.10.1",
-    "@mui/styled-engine-sc": "^5.10.1",
-    "@testing-library/jest-dom": "^5.16.5",
-    "@testing-library/react": "^13.3.0",
-    "@testing-library/user-event": "^13.5.0",
-    "axios": "^0.27.2",
-    "electron": "^20.0.3",
-    "electron-packager": "^15.5.1",
-    "fs": "0.0.1-security",
-    "http-proxy-middleware": "^2.0.6",
-    "prettier": "^2.7.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1",
-    "styled-components": "^5.3.5",
-    "web-vitals": "^2.1.4"
-  },
+  "repository": "https://github.com/zoumingyin/electron-react.git",
+  "license": "MIT",
+  "author": "zoumingyin <mingyin.zou@heweisoft.com>",
+  "main": "main.js",
   "scripts": {
-    "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
     "eject": "react-scripts eject",
     "electron": "electron .",
-    "package": "electron-packager . my-electron-app --platform=win32 --arch=x64 --overwrite --electron-version=11.1.1"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+    "lint": "eslint --ext .js --ext .jsx src",
+    "package": "electron-packager . my-electron-app --platform=win32 --arch=x64 --overwrite --electron-version=11.1.1",
+    "start": "react-scripts start",
+    "test": "react-scripts test"
   },
   "browserslist": {
     "production": [
@@ -51,5 +28,48 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://127.0.0.1"
+  "dependencies": {
+    "@babel/core": "^7.19.0",
+    "@babel/eslint-parser": "^7.18.9",
+    "@babel/plugin-syntax-flow": "^7.18.6",
+    "@babel/plugin-transform-react-jsx": "^7.19.0",
+    "@emotion/react": "^11.10.0",
+    "@emotion/styled": "^11.10.0",
+    "@mui/icons-material": "^5.10.3",
+    "@mui/joy": "^5.0.0-alpha.44",
+    "@mui/lab": "^5.0.0-alpha.98",
+    "@mui/material": "^5.10.4",
+    "@mui/styles": "^5.10.3",
+    "@mui/system": "^5.10.4",
+    "@mui/x-data-grid": "^5.17.2",
+    "@typescript-eslint/eslint-plugin": "^5.36.2",
+    "@typescript-eslint/parser": "^5.36.2",
+    "axios": "^0.27.2",
+    "copyfiles": "^2.4.1",
+    "electron": "^20.0.3",
+    "electron-packager": "^15.5.1",
+    "eslint": "^8.23.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-eslint-comments": "^3.2.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-json-format": "^2.0.1",
+    "eslint-plugin-jsx-a11y": "^6.6.1",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-react": "^7.31.7",
+    "eslint-plugin-simple-import-sort": "^8.0.0",
+    "eslint-plugin-unused-imports": "^2.0.0",
+    "fs": "0.0.1-security",
+    "http-proxy-middleware": "^2.0.6",
+    "json-format": "^1.0.1",
+    "lerna": "^5.5.1",
+    "prettier": "^2.7.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-is": "^18.2.0",
+    "react-scripts": "^5.0.1",
+    "styled-components": "^5.3.5",
+    "typescript": "^4.8.3",
+    "web-vitals": "^2.1.4"
+  }
 }

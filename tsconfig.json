@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "allowJs": true,
+    "outDir": "./build",
+    "strict": true,
+    "typeRoots": [
+      "../../node_modules/@types",
+      "./../@types"
+    ],
+    "paths": {}
+  },
+  "exclude": [],
+  "include": [
+    "src/**/*",
+    "public/**/*"
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "recommendations": [
+    "aaron-bond.better-comments",
+    "streetsidesoftware.code-spell-checker",
+    "bierner.markdown-mermaid",
+    "mdickin.markdown-shortcuts",
+    "ms-vsliveshare.vsliveshare",
+    "tomoki1207.pdf",
+    "orta.vscode-jest",
+    "bradymholt.pgformatter",
+    "jeppeandersen.vscode-kafka",
+    "ms-ossdata.vscode-postgresql",
+    "humao.rest-client",
+    "dbaeumer.vscode-eslint",
+    "hancel.google-translate",
+    "ms-vscode.vscode-typescript-next",
+    "davidanson.vscode-markdownlint",
+    "visualstudioexptteam.vscodeintellicode",
+    "redhat.vscode-yaml",
+    "telesoho.vscode-markdown-paste-image",
+    "okteto.remote-kubernetes",
+    "eamodio.gitlens",
+    "ms-vscode.theme-markdownkit"
+  ]
+}

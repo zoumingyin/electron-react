@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "rootDir": "./"
+  },
+  "include": [
+    ".eslintrc.js",
+    "**/*.ts",
+    "**/*.js",
+    "**/*.mjs",
+    "**/*.jsx",
+    "**/*.tsx",
+    "**/*.json"
+  ],
+  "exclude": [
+    "dist/**/*",
+    "scripts/tsconfig.json",
+    "node_modules/**/*"
+  ]
+}
